@@ -24,7 +24,7 @@ pipenv install
 
 Afterwards, Flask can be started with the following command:
 ```
-pipenv run python src/main.py
+pipenv run python robutton/main.py
 ```
 
 
