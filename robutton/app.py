@@ -44,7 +44,7 @@ def connect(bot_id: int):
         abort(404, message="bot not found")
 
     # create bot
-    bot = Bot(id=device['id'], mac=device['mac'], name=device['name'])
+    bot = Bot(bot_id=device['id'], mac=device['mac'], name=device['name'])
 
     pw = keyring.get_password('switchbot', device['mac'])
     if pw is None:
@@ -110,7 +110,7 @@ class BotListAPI(MethodView):
         bots = []
         scanner = Scanner()
 
-        addresses = scanner.scan(known_dict={})
+        addresses = scanner.scan(known_dict=None)
         LOG.debug("addresses: %s", str(addresses))
 
         for address in addresses:
@@ -149,7 +149,7 @@ class BotAPI(MethodView):
         except SwitchbotError as e:
             handle_switchbot_error(e)
 
-        d["id"] = bot.id
+        d["id"] = bot.bot_id
         d["mac"] = bot.mac
         d["name"] = bot.name
 
