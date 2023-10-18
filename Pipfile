@@ -9,7 +9,7 @@ verify_ssl = true
 apispec = "==2.0.2"
 asn1crypto = "==0.24.0"
 bcrypt = "==3.1.7"
-certifi = "==2018.8.24"
+certifi = "==2023.7.22"
 cffi = "==1.12.3"
 click = "==7.0"
 cryptography = "==41.0.4"
