@@ -5,7 +5,7 @@
 
 ## Generell
 - `sudo -i`für root konsole `exit` to leave
-- `sudo raspi-config` für raspberry konfiguration anpassungen 
+- `sudo raspi-config` für raspberry konfiguration anpassungen
 
 ### Vorbereitungen
 
@@ -15,9 +15,9 @@
 
 ### Raspberry Benutzer Ändern
 
-- cmd: `groups` gibt eine Liste von Benutzergruppen 
+- cmd: `groups` gibt eine Liste von Benutzergruppen
 
-- neuen Benutzer thomas erstellen, verwende die Benutzergruppen von vorher: 
+- neuen Benutzer thomas erstellen, verwende die Benutzergruppen von vorher:
 `sudo useradd -m -G adm,dialout,cdrom,sudo,audio,video,plugdev,games,users,input,netdev,gpio,i2c,spi thomas`
 
 - `sudo passwd thomas` zum setzen eines neuen passworts
@@ -65,15 +65,15 @@ server {
 }
 ```
 
-- Default Konfiguration löschen und unsere Datei als default einstellen: 
-`sudo rm /etc/nginx/sites-enabled/default` 
+- Default Konfiguration löschen und unsere Datei als default einstellen:
+`sudo rm /etc/nginx/sites-enabled/default`
 `sudo ln -s /etc/nginx/sites-available/switchbot /etc/nginx/sites-enabled`
 
 
 #### HTTPS (Zertifikate) einrichten
 
 - SSL Konfigurationsdatei erstellen `nano switchbot.conf`
-  
+
 ```
 [req]
 default_bits       = 2048
@@ -108,7 +108,7 @@ DNS.4  = 192.168.42.51
 ### Github Aufsetzen
 - Clone Repository in Ordner: `sudo -i` für in root konsole zu kommen, dann `cd /var/www/html/`,  dann `git clone https://github.com/nicolas-kuechler/switchbot.git`
 - Owner vom Code Ordner ändern `sudo chown -R thomas switchbot`
-  
+
 ### Python Environment Aufsetzen
 
 - run `pip install pipenv`
@@ -142,7 +142,7 @@ WantedBy=multi-user.target
 - Gunicorn aktivieren: `sudo systemctl enable gunicorn`
 - Gunicorn starten: `sudo systemctl start gunicorn`
 - Gunicorn status: `sudo systemctl status gunicorn`
-- Gunicorn neustarten (z.B. notwendig nach Login Passwort Änderung) `sudo systemctl restart gunicorn` 
+- Gunicorn neustarten (z.B. notwendig nach Login Passwort Änderung) `sudo systemctl restart gunicorn`
 - `systemctl daemon-reload`
 
 
@@ -151,3 +151,12 @@ WantedBy=multi-user.target
 - Token Expiration Time setzen: `configmodule.py` öffnen und `JWT_TOKEN_EXPIRE_HOURS` anpassen
 - Login Passwort setzen: `python login_password.py` und dann Anweisungen folgen
 - Passwörter werden mittels keyring verschlüsselt abgelegt unter: `~/.local/share/python_keyring/keyring_pass.cfg`
+
+
+### Keyring Configuration
+- Keyring Deaktivieren: In `~/.local/share/python_keyring/keyringc.cfg`:
+
+```
+[backend]
+default-keyring=keyrings.alt.file.PlaintextKeyring
+```
