@@ -370,10 +370,10 @@ class ActionListAPI(MethodView):
                 bot.press()
                 LOG.info("bot pressed")
             elif new_data['action'] == "turn_on":
-                bot.switch(on=True)
+                bot.switch(switch_on=True)
                 LOG.info("bot turned on")
             elif new_data['action'] == "turn_off":
-                bot.switch(on=False)
+                bot.switch(switch_on=False)
                 LOG.info("bot turned off")
             else:
                 abort(400, message="unknown action")
