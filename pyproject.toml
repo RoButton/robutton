@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "robutton"
+version = "0.1.0"
+description = ""
+authors = ["Nicolas Küchler <nico.kuechler@protonmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+gunicorn = "^19.9.0"
+switchbotpy = "^0.1.8"
+flask = "1.1.4"
+flask-jwt-extended = "4.3.1"
+flask-bcrypt = "^1.0.1"
+flask-rest-api = "0.16.1"
+tinydb = "^4.8.0"
+flask-limiter = "^2.0.1"
+keyrings-alt = "^5.0.0"
+werkzeug = "0.15.6"
+keyring = "^24.3.0"
+marshmallow = "^3.0.3"
+markupsafe = "^1.1.1"
+webargs = "5.5.3"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
