@@ -12,7 +12,7 @@ class Config(object):
     BASE_URL = '/switchbot/api/v1'
     OPENAPI_VERSION = '3.0.2'
     OPENAPI_URL_PREFIX = '/doc'
-    JWT_TOKEN_EXPIRE_HOURS = 24
+    JWT_TOKEN_EXPIRE_HOURS = os.getenv('SWITCHBOT_JWT_TOKEN_EXPIRE_HOURS', 24)
     LOGIN_LIMITER_LIMIT = "5/minute"
 
     @property
