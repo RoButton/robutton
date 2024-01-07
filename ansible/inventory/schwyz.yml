@@ -1,0 +1,32 @@
+
+
+robutton:
+  hosts:
+    raspberrypi-dg.home:
+
+      ip_address: "192.168.0.23"
+
+  vars:
+    nginx_server_name: switchbots.dynu.net www.switchbots.dynu.net
+    nginx_https_redirect: https://switchbots.dynu.net:8995
+
+    user: thomas
+    group: thomas
+
+    ssl_config:
+      country: CH
+      state: Schwyz
+      locality: Seewen
+      organization: Kuechler
+      common_name: switchbots.dynu.net
+
+      alt_names:
+      - switchbots.dynu.net
+      - www.switchbots.dynu.net
+      - "{{ ansible_host }}"
+      - "{{ ip_address }}"
+
+
+
+
+    #  ssh -o PreferredAuthentications=password  thomas@

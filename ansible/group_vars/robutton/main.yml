@@ -1,0 +1,38 @@
+---
+
+
+
+
+
+
+
+nginx:
+  site: robutton
+
+
+  ssl_certificate: /etc/ssl/certs/pi-switchbot.crt
+  ssl_certificate_key: /etc/ssl/private/pi-switchbot.key
+  ssl_dhparam: /etc/ssl/certs/dhparam.pem
+
+
+
+
+
+git_repo:
+  repo: https://github.com/RoButton/robutton.git
+  version: setup # TODO [nku] CHANGE
+  dest: "/home/{{ user }}/robutton"
+
+
+
+
+nginx_code_dir: /var/www/html
+nginx_code_app_dir: "{{ nginx_code_dir}}/{{ nginx.site }}/robutton"
+
+
+
+switchbot_db_path: /home/{{ user }}/db.json
+switchbot_jwt_token_expire_hours: 8760
+
+keyring_cfg_dir: /home/{{ user }}/.config/python_keyring/
+keyring_cfg_path: "{{ keyring_cfg_dir }}/keyringrc.cfg"

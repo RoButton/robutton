@@ -1,0 +1,20 @@
+[req]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+x509_extensions    = v3_ca
+prompt             = no
+
+[req_distinguished_name]
+C  = {{ ssl_config.country }}
+ST = {{ ssl_config.state }}
+L  = {{ ssl_config.locality }}
+O  = {{ ssl_config.organization }}
+CN = {{ ssl_config.common_name }}
+
+[v3_ca]
+subjectAltName = @alt_names
+
+[alt_names]
+{% for item in ssl_config.alt_names %}
+DNS.{{ loop.index }}  = {{ item }}
+{% endfor %}

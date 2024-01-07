@@ -1,0 +1,230 @@
+
+
+#  ansible-playbook install.yml -i inventory/schwyz.yml --ask-pass
+
+- name: Setup robutton
+  hosts: robutton
+
+  vars_prompt:
+  - name: robutton_api_password
+    prompt: "Enter the robutton API password"
+
+
+  tasks:
+
+    - name: Update and upgrade apt packages
+      become: true
+      apt:
+        upgrade: yes
+        update_cache: yes
+
+    - name: install packages
+      become: True
+      ansible.builtin.package:
+        name:
+          - git
+          - pipx
+          - nginx
+          - build-essential
+          - libssl-dev
+          - libffi-dev
+          - expect
+
+
+    - name: Clone repository
+      ansible.builtin.git:
+        repo: "{{ git_repo.repo }}"
+        dest: "{{ git_repo.dest }}"
+        version: "{{ git_repo.version }}"
+        accept_hostkey: yes
+
+    #########################################
+    #  ___      _   _
+    # | _ \_  _| |_| |_  ___ _ _
+    # |  _/ || |  _| ' \/ _ \ ' \
+    # |_|  \_, |\__|_||_\___/_||_|
+    #      |__/
+    #########################################
+
+    - name: Install poetry
+      community.general.pipx:
+        name: poetry
+
+    - set_fact:
+        poetry: /home/{{ user}}/.local/bin/poetry
+
+    - name: Set config to create .venv folder in project directory
+      ansible.builtin.shell:
+        cmd: "{{ poetry }} config virtualenvs.in-project true"
+
+
+    - name: Delete keyrings config
+      ansible.builtin.file:
+        path: "{{ keyring_cfg_path }}"
+        state: absent
+
+
+    - name: Install python packages
+      ansible.builtin.shell:
+        cmd: "{{ poetry }} install"
+        chdir: "{{ git_repo.dest }}"
+
+
+
+    ################################################
+    #  ___      _   _   _
+    # / __| ___| |_| |_(_)_ _  __ _ ___
+    # \__ \/ -_)  _|  _| | ' \/ _` (_-<
+    # |___/\___|\__|\__|_|_||_\__, /__/
+    #                         |___/
+    ################################################
+
+    - name: Set capability that allows scanning without sudo
+      become: true
+      ansible.builtin.shell:
+        cmd: setcap cap_net_raw+ep /usr/bin/hcitool
+
+    - name: Set a static ip
+      become: true
+      ansible.builtin.template:
+        src: dhcpcd.conf.j2
+        dest: /etc/dhcpcd.conf
+
+
+
+    ###################################
+    #   ___           __ _
+    #  / __|___ _ _  / _(_)__ _
+    # | (__/ _ \ ' \|  _| / _` |
+    #  \___\___/_||_|_| |_\__, |
+    #                     |___/
+    ###################################
+
+    - name: Make sure switchbot db can be accessed by user
+      become: true
+      ansible.builtin.template:
+        src: db.json.j2
+        dest: "{{ switchbot_db_path }}"
+        owner: "{{ user }}"
+        force: no
+
+
+    - name: Create a keyring config directory
+      ansible.builtin.file:
+        path: "{{ keyring_cfg_dir }}"
+        state: directory
+        owner: "{{ user }}"
+
+
+    - name: Use plaintext keyring
+      become: true
+      ansible.builtin.template:
+        src: keyring.cfg.j2
+        dest: "{{ keyring_cfg_path }}"
+        owner: "{{ user }}"
+
+
+    - name: Set a login password to obtain a bearer token (via rest api)
+      ansible.builtin.shell: |
+        set timeout 30
+        {{ poetry }} run python robutton/login_password.py
+
+        expect "Login Password (required for receiving bearer token): "
+        send "{{ robutton_api_password }}\n"
+
+        expect "Do you want to invalidate all login tokens? (y/n): "
+        send "n\n"
+      args:
+        executable: /usr/bin/expect
+        chdir: "{{ git_repo.dest }}"
+
+
+
+    ###################################
+    #  ___ ___ _
+    # / __/ __| |
+    # \__ \__ \ |__
+    # |___/___/____|
+    #
+    ###################################
+
+    - name: Create openssl config for key generation for https
+      ansible.builtin.template:
+        src: openssl_certificate.conf.j2
+        dest: ~/ssl_certificate.conf
+
+    - name: Create ssl key + certificate
+      become: true
+      ansible.builtin.shell:
+        cmd: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout {{ nginx.ssl_certificate_key }} -out {{ nginx.ssl_certificate }} -config ssl_certificate.conf
+        creates: "{{ nginx.ssl_certificate }}"
+
+    - name: Create DH params
+      become: true
+      ansible.builtin.shell:
+        cmd: openssl dhparam -out {{ nginx.ssl_dhparam }} 2048
+        creates: "{{ nginx.ssl_dhparam }}"
+
+
+    ###################################
+    #  _  _  ___ ___ _  ___  __
+    # | \| |/ __|_ _| \| \ \/ /
+    # | .` | (_ || || .` |>  <
+    # |_|\_|\___|___|_|\_/_/\_\
+    #
+    ##################################
+
+    - name: Create nginx site config
+      become: true
+      ansible.builtin.template:
+        src: nginx_switchbot.j2
+        dest: /etc/nginx/sites-available/{{ nginx.site }}
+
+    - name: Copy the code to the nginx var directory
+      become: True
+      ansible.builtin.copy:
+        src: "{{ git_repo.dest }}"
+        dest: "{{ nginx_code_dir }}"
+        remote_src: yes
+
+    - name: Remove nginx default config
+      become: true
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Create simlink to make site available
+      become: true
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/{{ nginx.site }}
+        dest: /etc/nginx/sites-enabled/{{ nginx.site }}
+        state: link
+
+    ########################################
+    #   ___           _
+    #  / __|_  _ _ _ (_)__ ___ _ _ _ _
+    # | (_ | || | ' \| / _/ _ \ '_| ' \
+    #  \___|\_,_|_||_|_\__\___/_| |_||_|
+    #
+    ########################################
+
+
+    - name: Create a log directory
+      become: True
+      ansible.builtin.file:
+        path: /var/www/html/log
+        state: directory
+        owner: "{{ user }}"
+
+    - name: Create the gunicorn service
+      become: true
+      ansible.builtin.template:
+        src: gunicorn.service.j2
+        dest: /etc/systemd/system/gunicorn.service
+
+    - name: Reload the gunicorn service
+      become: True
+      ansible.builtin.systemd_service:
+        state: restarted
+        daemon_reload: true
+        name: gunicorn

@@ -1,0 +1,18 @@
+[Unit]
+Description=gunicorn daemon for {{ nginx_code_app_dir }}/app.py
+After=network.target
+
+[Service]
+User={{ user }}
+Group={{ group }}
+RuntimeDirectory=gunicorn
+WorkingDirectory={{ nginx_code_app_dir }}
+Environment="SWITCHBOT_DB_PATH={{ switchbot_db_path }}"
+Environment="SWITCHBOT_JWT_TOKEN_EXPIRE_HOURS={{ switchbot_jwt_token_expire_hours }}"
+
+ExecStart={{ git_repo.dest }}/.venv/bin/gunicorn --bind=unix:/tmp/gunicorn.sock --workers=4 app:app --timeout 80 --access-logfile /var/www/html/log/gunicorn_access.log --error-logfile /var/www/html/log/gunicorn_error.log --log-file /var/www/html/log/gunicorn.log --log-level debug --capture-output
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+
+[Install]
+WantedBy=multi-user.target
