@@ -844,13 +844,13 @@ pygatt = "*"
 
 [[package]]
 name = "tinydb"
-version = "4.8.0"
+version = "3.13.0"
 description = "TinyDB is a tiny, document oriented database optimized for your happiness :)"
 optional = false
-python-versions = ">=3.7,<4.0"
+python-versions = "*"
 files = [
-    {file = "tinydb-4.8.0-py3-none-any.whl", hash = "sha256:30c06d12383d7c332e404ca6a6103fb2b32cbf25712689648c39d9a6bd34bd3d"},
-    {file = "tinydb-4.8.0.tar.gz", hash = "sha256:6dd686a9c5a75dfa9280088fd79a419aefe19cd7f4bd85eba203540ef856d564"},
+    {file = "tinydb-3.13.0-py2.py3-none-any.whl", hash = "sha256:260b1f69168a24518af63f0270c72dc026476607016a0105aef6a966d8d2fbdc"},
+    {file = "tinydb-3.13.0.tar.gz", hash = "sha256:a05c4c81e6e867c4f8a2e51c5236d0d897019aa5e9296f5947455b0bdd3c519d"},
 ]
 
 [[package]]
@@ -1000,4 +1000,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "ab2b69fd7c64f4524bb215166f675d75a29e15603b1e073038e12653354773b0"
+content-hash = "e3cac54f7a11e37504619462685122a8f6788a7b79db72674350be7124f360f4"
